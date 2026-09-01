@@ -87,3 +87,8 @@ mvn javadoc:javadoc
 ```
 
 The generated HTML is written to `target/site/apidocs`.
+
+## Credits
+
+* [Lasse Koskela](https://coderanch.com/u/25523/Lasse-Koskela) on Coderanch: [JUnit and Sockets](https://coderanch.com/t/95928/engineering/JUnit-Sockets#496738)
+* Anthropic Claude for Javadocs
