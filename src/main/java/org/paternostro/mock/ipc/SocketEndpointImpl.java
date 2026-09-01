@@ -35,7 +35,7 @@ public class SocketEndpointImpl implements Endpoint {
      * called; instances are normally obtained already initialized through
      * {@link EndpointFactory}.
      */
-    public SocketEndpointImpl() {
+    SocketEndpointImpl() {
         this.inetAddr   = null;
         this.port       = 0;
         this.socket     = null;
@@ -50,7 +50,7 @@ public class SocketEndpointImpl implements Endpoint {
      * @param inetAddr the address to connect to
      * @param port the port to connect to
      */
-    public void init(InetAddress inetAddr, int port) {
+    void init(InetAddress inetAddr, int port) {
         this.inetAddr   = inetAddr;
         this.port       = port;
     }
@@ -63,7 +63,7 @@ public class SocketEndpointImpl implements Endpoint {
      *
      * @param socket the already-connected socket to wrap
      */
-    public void init(Socket socket) {
+    void init(Socket socket) {
         this.socket = socket;
     }
 

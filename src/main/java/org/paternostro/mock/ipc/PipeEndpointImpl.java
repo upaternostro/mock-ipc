@@ -32,7 +32,7 @@ public class PipeEndpointImpl implements Endpoint {
      * called; instances are normally obtained already initialized through
      * {@link EndpointFactory}.
      */
-    public PipeEndpointImpl() {
+    PipeEndpointImpl() {
         this.writeChannel = null;
         this.readChannel = null;
     }
@@ -43,7 +43,7 @@ public class PipeEndpointImpl implements Endpoint {
      * @param writeChannel the channel this endpoint writes outgoing data to
      * @param readChannel the channel this endpoint reads incoming data from
      */
-    public void init(Channel writeChannel, Channel readChannel) {
+    void init(Channel writeChannel, Channel readChannel) {
         this.writeChannel = writeChannel;
         this.readChannel = readChannel;
     }
