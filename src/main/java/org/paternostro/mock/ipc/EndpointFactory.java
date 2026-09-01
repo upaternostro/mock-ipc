@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * {@code EndpointFactory} is the single entry point client/server code
  * should use to obtain {@link Endpoint}s, instead of instantiating
- * {@link SocketEndpointImpl} or {@link PipeEndpointImpl} directly. This
+ * {@link ClientSocketEndpointImpl}, {@link ServerSocketEndpointImpl} or {@link PipeEndpointImpl} directly. This
  * keeps production and test code identical: the only thing that changes is
  * which kind of endpoint the factory hands out.
  * <p>
@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
  * and the concrete {@link Endpoint} implementation classes it instantiates
  * can be overridden via a {@code EndpointFactory.properties} resource file
  * placed next to this class on the classpath, using the
- * {@link #CLASS_NAME_PROPERTY}, {@link #PIPE_ENDPOINT_CLASS} and
- * {@link #SOCKET_ENDPOINT_CLASS} keys; if the file is missing, unreadable,
+ * {@link #CLASS_NAME_PROPERTY}, {@link #PIPE_ENDPOINT_CLASS}, {@link #CLIENT_SOCKET_ENDPOINT_CLASS} and
+ * {@link #SERVER_SOCKET_ENDPOINT_CLASS} keys; if the file is missing, unreadable,
  * or any configured class cannot be instantiated, the built-in defaults are
  * used instead.
  * <p>
@@ -139,11 +139,17 @@ public class EndpointFactory {
     /** Default pipe {@link Endpoint} implementation class, used when no override is configured. */
     public static final String PIPE_ENDPOINT_DEFAULT    = "org.paternostro.mock.ipc.PipeEndpointImpl";
 
-    /** Property key used to override the socket {@link Endpoint} implementation class. */
-    public static final String SOCKET_ENDPOINT_CLASS    = "org.paternostro.mock.ipc.SocketEndpoint.class";
+    /** Property key used to override the socket {@link Endpoint} implementation class for server use. */
+    public static final String SERVER_SOCKET_ENDPOINT_CLASS    = "org.paternostro.mock.ipc.ServerSocketEndpoint.class";
 
-    /** Default socket {@link Endpoint} implementation class, used when no override is configured. */
-    public static final String SOCKET_ENDPOINT_DEFAULT  = "org.paternostro.mock.ipc.SocketEndpointImpl";
+    /** Default socket {@link Endpoint} implementation class for server use, used when no override is configured. */
+    public static final String SERVER_SOCKET_ENDPOINT_DEFAULT  = "org.paternostro.mock.ipc.ServerSocketEndpointImpl";
+
+    /** Property key used to override the socket {@link Endpoint} implementation class for client use. */
+    public static final String CLIENT_SOCKET_ENDPOINT_CLASS    = "org.paternostro.mock.ipc.ClientSocketEndpoint.class";
+
+    /** Default socket {@link Endpoint} implementation class for client use, used when no override is configured. */
+    public static final String CLIENT_SOCKET_ENDPOINT_DEFAULT  = "org.paternostro.mock.ipc.ClientSocketEndpointImpl";
 
     /**
      * Resolves and instantiates an {@link Endpoint} implementation by class
@@ -218,7 +224,7 @@ public class EndpointFactory {
      */
     public Endpoint getSocketEndpoint(InetAddress inetAddr, int port)
     {
-        SocketEndpointImpl  retval = (SocketEndpointImpl)getEndpoint(SOCKET_ENDPOINT_CLASS, SOCKET_ENDPOINT_DEFAULT, SocketEndpointImpl.class);
+        ClientSocketEndpointImpl    retval = (ClientSocketEndpointImpl)getEndpoint(CLIENT_SOCKET_ENDPOINT_CLASS, CLIENT_SOCKET_ENDPOINT_DEFAULT, ClientSocketEndpointImpl.class);
 
         retval.init(inetAddr, port);
 
@@ -237,7 +243,7 @@ public class EndpointFactory {
      */
     public Endpoint getSocketEndpoint(Socket socket)
     {
-        SocketEndpointImpl  retval = (SocketEndpointImpl)getEndpoint(SOCKET_ENDPOINT_CLASS, SOCKET_ENDPOINT_DEFAULT, SocketEndpointImpl.class);
+        ServerSocketEndpointImpl    retval = (ServerSocketEndpointImpl)getEndpoint(SERVER_SOCKET_ENDPOINT_CLASS, SERVER_SOCKET_ENDPOINT_DEFAULT, ServerSocketEndpointImpl.class);
 
         retval.init(socket);
 

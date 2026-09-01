@@ -3,11 +3,10 @@ package org.paternostro.mock.ipc;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetAddress;
 import java.net.Socket;
 
 /**
- * {@link Endpoint} implementation backed by a real {@link Socket}.
+ * Abstract {@link Endpoint} implementation backed by a real {@link Socket}.
  * <p>
  * This is the implementation meant for production use. It can either wrap an
  * already-connected socket (e.g. one accepted by a {@link java.net.ServerSocket},
@@ -22,11 +21,8 @@ import java.net.Socket;
  * @see EndpointFactory#getSocketEndpoint(InetAddress, int)
  * @see EndpointFactory#getSocketEndpoint(Socket)
  */
-public class SocketEndpointImpl implements Endpoint {
-    private InetAddress inetAddr;
-    private int         port;
-
-    private Socket      socket;
+public abstract class AbstractSocketEndpointImpl implements Endpoint {
+    protected Socket    socket;
 
     /**
      * Creates an uninitialized socket endpoint.
@@ -35,49 +31,8 @@ public class SocketEndpointImpl implements Endpoint {
      * called; instances are normally obtained already initialized through
      * {@link EndpointFactory}.
      */
-    SocketEndpointImpl() {
-        this.inetAddr   = null;
-        this.port       = 0;
+    AbstractSocketEndpointImpl() {
         this.socket     = null;
-    }
-
-    /**
-     * Configures this endpoint to connect to the given address and port when
-     * {@link #connect()} is called.
-     * <p>
-     * Typically used for the client side of a connection.
-     *
-     * @param inetAddr the address to connect to
-     * @param port the port to connect to
-     */
-    void init(InetAddress inetAddr, int port) {
-        this.inetAddr   = inetAddr;
-        this.port       = port;
-    }
-
-    /**
-     * Wraps this endpoint around an already-connected socket.
-     * <p>
-     * Typically used for the server side of a connection, with a socket
-     * obtained from {@link java.net.ServerSocket#accept()}.
-     *
-     * @param socket the already-connected socket to wrap
-     */
-    void init(Socket socket) {
-        this.socket = socket;
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Opens a new {@link Socket} to the address and port configured via
-     * {@link #init(InetAddress, int)}. Has no effect on an endpoint that was
-     * initialized via {@link #init(Socket)} with an already-connected
-     * socket, other than replacing it with a new connection.
-     */
-    @Override
-    public void connect() throws IOException {
-        socket = new Socket(inetAddr, port);
     }
 
     /**

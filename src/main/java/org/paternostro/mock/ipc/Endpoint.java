@@ -9,7 +9,7 @@ import java.io.OutputStream;
  * <p>
  * An {@code Endpoint} abstracts a bidirectional communication channel so that
  * client/server code can be written once and exercised both against a real
- * {@link java.net.Socket} (via {@link SocketEndpointImpl}) and against an
+ * {@link java.net.Socket} (via {@link AbstractSocketEndpointImpl} and derived classes {@link ClientSocketEndpointImpl} and {@link ServerSocketEndpointImpl}) and against an
  * in-memory pipe (via {@link PipeEndpointImpl}) during unit tests.
  * <p>
  * Instances are normally obtained through {@link EndpointFactory} rather than
@@ -18,7 +18,9 @@ import java.io.OutputStream;
  * Copyright Ugo Paternostro 2026. Licensed under the EUPL-1.2 or later.
  *
  * @see EndpointFactory
- * @see SocketEndpointImpl
+ * @see AbstractSocketEndpointImpl
+ * @see ClientSocketEndpointImpl
+ * @see ServerSocketEndpointImpl
  * @see PipeEndpointImpl
  */
 public interface Endpoint {

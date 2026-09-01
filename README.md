@@ -34,7 +34,13 @@ To allocate an `Endpoint`, use `EndpointFactory`:
 Endpoint serverEndpoint = EndpointFactory.getFactory().getSocketEndpoint(socket);
 ```
 
-for a socket based endpoint, and
+for a socket based server endpoint, while
+
+```java
+Endpoint clientEndpoint = EndpointFactory.getFactory().getSocketEndpoint(inetAddr, port);
+```
+
+allocates a socket based client endpoint and
 
 ```java
 Channel c2s = new Channel();
@@ -43,7 +49,7 @@ Endpoint serverEndpoint = EndpointFactory.getFactory().getPipeEndpoint(s2c, c2s)
 Endpoint clientEndpoint = EndpointFactory.getFactory().getPipeEndpoint(c2s, s2c);
 ```
 
-for pipe based ones.
+shoud be used to obtain the pipe based ones.
 
 ### Two flavors of socket endpoint
 
@@ -52,10 +58,10 @@ for pipe based ones.
 - `getSocketEndpoint(Socket socket)` — wraps an **already-connected** socket, typically the one returned by `ServerSocket.accept()`. Use this on the **server** side; the resulting endpoint is immediately usable, no need to call `connect()`.
 - `getSocketEndpoint(InetAddress inetAddr, int port)` — configures an endpoint with a target address and port, but does **not** connect yet. Use this on the **client** side, then call `endpoint.connect()` before using its streams:
 
-  ```java
-  Endpoint clientEndpoint = EndpointFactory.getFactory().getSocketEndpoint(inetAddr, port);
-  clientEndpoint.connect();
-  ```
+```java
+Endpoint clientEndpoint = EndpointFactory.getFactory().getSocketEndpoint(inetAddr, port);
+clientEndpoint.connect();
+```
 
 In the server code, use
 
@@ -72,11 +78,20 @@ OutputStream outputStream = serverEndpoint.getOutputStream();
 | --- | --- |
 | `org.paternostro.mock.ipc.EndpointFactory.class` | the `EndpointFactory` implementation itself |
 | `org.paternostro.mock.ipc.PipeEndpoint.class` | the pipe based `Endpoint` implementation |
-| `org.paternostro.mock.ipc.SocketEndpoint.class` | the socket based `Endpoint` implementation |
+| `org.paternostro.mock.ipc.ServerSocketEndpoint.class` | the socket based server side `Endpoint` implementation |
+| `org.paternostro.mock.ipc.ClientSocketEndpoint.class` | the socket based client side `Endpoint` implementation |
 
 ## Example
 
 See `TestServer` and/or `TestClient` for sample client/server code, and `TestMockIPC` for how they are wired together and exercised with pipe based endpoints in a JUnit test.
+
+## Compile
+
+Compile the library using Maven with:
+
+```
+mvn install
+```
 
 ## Documentation
 
