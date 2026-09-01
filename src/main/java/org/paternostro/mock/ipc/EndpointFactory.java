@@ -98,7 +98,7 @@ public class EndpointFactory {
                         logger.warn("Class " + className + " instantiation error, using defaults", e);
                         retval = singleton = new EndpointFactory();
                     } catch (ClassCastException e) {
-                        logger.warn("Cannot cast class " + className + " to ElkrommFactory, using defaults", e);
+                        logger.warn("Cannot cast class " + className + " to EndpointFactory, using defaults", e);
                         retval = singleton = new EndpointFactory();
                     }
                 }
@@ -175,7 +175,7 @@ public class EndpointFactory {
         } catch (InstantiationException|IllegalAccessException e) {
             logger.warn("Class " + className + " instantiation error, using defaults", e);
         } catch (ClassCastException e) {
-            logger.warn("Cannot cast class " + className + " to ElkrommSerializer<?>, using defaults", e);
+            logger.warn("Cannot cast class " + className + " to Endpoint, using defaults", e);
         } finally {
             if (retval == null) {
                 try {
