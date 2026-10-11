@@ -58,12 +58,17 @@ public abstract class AbstractSocketEndpointImpl implements Endpoint {
     /**
      * {@inheritDoc}
      *
-     * @return the connection state of the underlying socket, as reported by
-     *         {@link Socket#isConnected()}
+     * <p>
+     * Unlike {@link Socket#isConnected()}, which stays {@code true} after the
+     * socket has been closed, this returns {@code false} once the endpoint
+     * has been closed.
+     *
+     * @return {@code true} if the underlying socket is connected and not
+     *         closed
      */
     @Override
     public boolean isConnected() {
-        return socket.isConnected();
+        return socket.isConnected() && !socket.isClosed();
     }
 
     /**

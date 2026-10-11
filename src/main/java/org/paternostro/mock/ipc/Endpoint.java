@@ -1,5 +1,6 @@
 package org.paternostro.mock.ipc;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -23,10 +24,15 @@ import java.io.OutputStream;
  * @see ServerSocketEndpointImpl
  * @see PipeEndpointImpl
  */
-public interface Endpoint {
+public interface Endpoint extends Closeable {
 
     /**
      * Tells whether this endpoint is currently connected.
+     * <p>
+     * This means "usable now": once the endpoint has been closed it is not
+     * connected any more, even if the underlying transport (for instance
+     * {@link java.net.Socket#isConnected()}) keeps reporting that it has been
+     * connected at some point.
      *
      * @return {@code true} if the endpoint is connected and its streams can
      *         be used, {@code false} otherwise
@@ -64,8 +70,14 @@ public interface Endpoint {
 
     /**
      * Closes the endpoint and releases any resource associated with it.
+     * <p>
+     * As required by {@link Closeable#close()}, closing an endpoint that is
+     * already closed, or that has never been connected, has no effect. After
+     * this call {@link #isConnected()} returns {@code false} and the streams
+     * can no longer be obtained.
      *
      * @throws IOException if an I/O error occurs while closing the endpoint
      */
+    @Override
     void close() throws IOException;
 }

@@ -44,4 +44,26 @@ public class ClientSocketEndpointImpl extends AbstractSocketEndpointImpl {
     public void connect() throws IOException {
         socket = new Socket(inetAddr, port);
     }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * The socket is created by {@link #connect()}, so before that the
+     * endpoint is not connected.
+     */
+    @Override
+    public boolean isConnected() {
+        return socket != null && super.isConnected();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * The socket is created by {@link #connect()}, so closing an endpoint
+     * that has never been connected has nothing to close.
+     */
+    @Override
+    public void close() throws IOException {
+        if (socket != null) super.close();
+    }
 }

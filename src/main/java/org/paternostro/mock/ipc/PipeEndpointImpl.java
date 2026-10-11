@@ -39,11 +39,18 @@ public class PipeEndpointImpl implements Endpoint {
 
     /**
      * Wires this endpoint to the given channels.
+     * Must be called once; a closed endpoint is not meant to be reused.
      *
      * @param writeChannel the channel this endpoint writes outgoing data to
      * @param readChannel the channel this endpoint reads incoming data from
+     * @throws IllegalArgumentException if either channel is null
+     * @throws IllegalStateException if already initialized
      */
-    void init(Channel writeChannel, Channel readChannel) {
+    synchronized void init(Channel writeChannel, Channel readChannel) {
+        if (writeChannel == null) throw new IllegalArgumentException("Null write channel");
+        if (readChannel == null) throw new IllegalArgumentException("Null read channel");
+        if (this.writeChannel != null) throw new IllegalStateException("Already initialized");
+        
         this.writeChannel = writeChannel;
         this.readChannel = readChannel;
     }
@@ -52,20 +59,27 @@ public class PipeEndpointImpl implements Endpoint {
      * {@inheritDoc}
      * <p>
      * A pipe endpoint is connected as soon as it is initialized, so this
-     * method is a no-op.
+     * method is a no-op, unless the endpoint has already been closed: a
+     * closed pipe cannot be reopened.
+     *
+     * @throws IOException if the endpoint is not open (never initialized, or closed)
      */
     @Override
-    public void connect() throws IOException {
-        // Borns connected, do nothing here
+    public synchronized void connect() throws IOException {
+        // Borns connected, do nothing here. Just check if we have been closed
+        if (writeChannel == null) throw new IOException("Endpoint not open");
     }
 
     /**
      * {@inheritDoc}
      *
      * @return the output stream of the write channel
+     * @throws IOException if the endpoint is not open (never initialized, or closed)
      */
     @Override
-    public OutputStream getOutputStream() {
+    public synchronized OutputStream getOutputStream() throws IOException {
+        if (writeChannel == null) throw new IOException("Endpoint not open");
+
         return writeChannel.getOutputStream();
     }
 
@@ -73,21 +87,24 @@ public class PipeEndpointImpl implements Endpoint {
      * {@inheritDoc}
      *
      * @return the input stream of the read channel
+     * @throws IOException if the endpoint is not open (never initialized, or closed)
      */
     @Override
-    public InputStream getInputStream() {
+    public synchronized InputStream getInputStream() throws IOException {
+        if (readChannel == null) throw new IOException("Endpoint not open");
+
         return readChannel.getInputStream();
     }
 
     /**
      * {@inheritDoc}
      *
-     * @return always {@code true}, since a pipe endpoint is connected as
-     *         soon as it is initialized
+     * @return {@code true} from initialization until the endpoint is closed,
+     *         since a pipe endpoint is connected as soon as it is initialized
      */
     @Override
-    public boolean isConnected() {
-        return true;
+    public synchronized boolean isConnected() {
+        return writeChannel != null;
     }
 
     /**
@@ -95,11 +112,21 @@ public class PipeEndpointImpl implements Endpoint {
      * <p>
      * Delegates to {@link Channel#closeOutputStream()} and
      * {@link Channel#closeInputStream()} on the write and read channels
-     * respectively.
+     * respectively, so the peer sees the end of the stream.
      */
     @Override
-    public void close() throws IOException {
-        writeChannel.closeOutputStream();
-        readChannel.closeInputStream();
+    public synchronized void close() throws IOException {
+        if (writeChannel == null) return; // already closed, or not inited
+
+        try {
+            try {
+                writeChannel.closeOutputStream();
+            } finally {
+                readChannel.closeInputStream();
+            }
+        } finally {
+            writeChannel = null;
+            readChannel = null;
+        }
     }
 }

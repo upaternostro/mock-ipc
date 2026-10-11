@@ -56,26 +56,23 @@ public class Channel {
     /**
      * Closes the write side of this channel.
      * <p>
-     * Currently a no-op: piped streams are left open so both ends of the
-     * pipe can keep being exercised independently by test code.
+     * The reading side sees the end of the stream once it has consumed the
+     * data already written.
      *
-     * @throws IOException never thrown by the current implementation, but
-     *         declared for interface consistency and future changes
+     * @throws IOException if an I/O error occurs while closing the stream
      */
     public void closeOutputStream() throws IOException {
-        // do nothing here
+        output.close();
     }
 
     /**
      * Closes the read side of this channel.
      * <p>
-     * Currently a no-op: piped streams are left open so both ends of the
-     * pipe can keep being exercised independently by test code.
+     * Any further attempt to write on the other side fails.
      *
-     * @throws IOException never thrown by the current implementation, but
-     *         declared for interface consistency and future changes
+     * @throws IOException if an I/O error occurs while closing the stream
      */
     public void closeInputStream() throws IOException {
-        // do nothing here
+        input.close();
     }
 }
