@@ -36,13 +36,17 @@ jobs:
           server-username-env-var: CENTRAL_USERNAME
           server-password-env-var: CENTRAL_PASSWORD
 
-      - name: Downgrade Maven to avoid incompatibility with central-publishing-maven-plugin:0.11.0
+      - name: Pin Maven 3.9.16 (central-publishing 0.11.0 breaks with Maven 3.10)
         run: |
-          sudo curl -4sSLo apache-maven-3.9.16-bin.zip https://downloads.apache.org/maven/maven-3/3.9.16/binaries/apache-maven-3.9.16-bin.zip
-          sudo unzip -qq -d /usr/share apache-maven-3.9.16-bin.zip
-          sudo ln -sf /usr/share/apache-maven-3.9.16/bin/mvn /usr/bin/mvn
-          sudo rm apache-maven-3.9.16-bin.zip
-
+          v=3.9.16
+          sha512=ed41650d42485cfc243fad22158caf9cbb5dc408ce7a09ddb94dd42a019de929ca43065bfa450612cf12bf78b5cafa3884b96c090de326ff590448c933454af3
+          curl -fsSLo "$RUNNER_TEMP/maven.zip" "https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/$v/apache-maven-$v-bin.zip"
+          echo "$sha512  $RUNNER_TEMP/maven.zip" | sha512sum -c - >/dev/null
+          sudo unzip -qq -d /usr/share "$RUNNER_TEMP/maven.zip"
+          sudo ln -sf "/usr/share/apache-maven-$v/bin/mvn" /usr/bin/mvn
+          mvn -v
+          test "$(mvn -v | sed -n 's/^Apache Maven \([0-9.]*\).*/\1/p')" = "$v"
+      
       - name: Check that the tag matches a release version in pom.xml
         if: github.ref_type == 'tag'
         run: |
