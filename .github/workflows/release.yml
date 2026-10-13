@@ -36,6 +36,9 @@ jobs:
           server-username-env-var: CENTRAL_USERNAME
           server-password-env-var: CENTRAL_PASSWORD
 
+      # See https://github.com/mavenplugins/central-publishing-maven-plugin/issues/78 ,
+      #     https://github.com/mavenplugins/central-publishing-maven-plugin/issues/79 and
+      #     https://github.com/mavenplugins/central-publishing-maven-plugin/pull/80
       - name: Pin Maven 3.9.16 (central-publishing 0.11.0 breaks with Maven 3.10)
         run: |
           v=3.9.16
