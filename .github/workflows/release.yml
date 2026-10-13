@@ -36,6 +36,13 @@ jobs:
           server-username-env-var: CENTRAL_USERNAME
           server-password-env-var: CENTRAL_PASSWORD
 
+      - name: Downgrade Maven to avoid incompatibility with central-publishing-maven-plugin:0.11.0
+        run: |
+          sudo curl -4sSLo apache-maven-3.9.16-bin.zip https://downloads.apache.org/maven/maven-3/3.9.16/binaries/apache-maven-3.9.16-bin.zip
+          sudo unzip -qq -d /usr/share apache-maven-3.9.16-bin.zip
+          sudo ln -sf /usr/share/apache-maven-3.9.16/bin/mvn /usr/bin/mvn
+          sudo rm apache-maven-3.9.16-bin.zip
+
       - name: Check that the tag matches a release version in pom.xml
         if: github.ref_type == 'tag'
         run: |
