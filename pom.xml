@@ -6,7 +6,7 @@
 
     <groupId>org.paternostro</groupId>
     <artifactId>mock-ipc</artifactId>
-    <version>0.3</version>
+    <version>0.4-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>mock-ipc</name>
