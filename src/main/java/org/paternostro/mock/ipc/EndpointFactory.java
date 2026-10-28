@@ -48,7 +48,7 @@ public class EndpointFactory {
     /** Default {@code EndpointFactory} implementation class, used when no override is configured. */
     public static final String CLASS_NAME_DEFAULT   = "org.paternostro.mock.ipc.EndpointFactory";
 
-    private static EndpointFactory   singleton = null;
+    private static volatile EndpointFactory   singleton = null;
 
     /**
      * Returns the singleton {@code EndpointFactory} instance, creating it on
@@ -64,18 +64,16 @@ public class EndpointFactory {
      */
     public static EndpointFactory getFactory()
     {
-        EndpointFactory retval = singleton;
+        EndpointFactory   retval = singleton;
 
         if (retval == null) {
             synchronized (EndpointFactory.class) {
                 retval = singleton;
 
                 if (retval == null) {
-                    Properties p = new Properties();
+                    Properties  p = new Properties();
 
-                    try {
-                        InputStream propertiesStream = EndpointFactory.class.getResourceAsStream(PROPERTIES_FILE_NAME);
-
+                    try (InputStream propertiesStream = EndpointFactory.class.getResourceAsStream(PROPERTIES_FILE_NAME)) {
                         if (propertiesStream != null) {
                             p.load(propertiesStream);
                         }
@@ -86,21 +84,21 @@ public class EndpointFactory {
                     String className = p.getProperty(CLASS_NAME_PROPERTY, CLASS_NAME_DEFAULT);
 
                     try {
-                        retval = singleton = (EndpointFactory)Class.forName(className).newInstance();
-                        singleton.setProperties(p);
-                    } catch (ClassNotFoundException e) {
-                        logger.warn("Class " + className + " not found, using defaults", e);
-                        retval = singleton = new EndpointFactory();
-                    } catch (InstantiationException e) {
-                        logger.warn("Class " + className + " instantiation error, using defaults", e);
-                        retval = singleton = new EndpointFactory();
-                    } catch (IllegalAccessException e) {
-                        logger.warn("Class " + className + " instantiation error, using defaults", e);
-                        retval = singleton = new EndpointFactory();
-                    } catch (ClassCastException e) {
-                        logger.warn("Cannot cast class " + className + " to EndpointFactory, using defaults", e);
-                        retval = singleton = new EndpointFactory();
+                        retval = Class.forName(className, false, EndpointFactory.class.getClassLoader())
+                                        .asSubclass(EndpointFactory.class)
+                                        .getDeclaredConstructor()
+                                        .newInstance();
+                    } catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
+                        logger.warn("Cannot instantiate class " + className + ", using default class", e);
+                        retval = new EndpointFactory();
                     }
+
+                    /*
+                     * Configure the new instance before publishing it in 'instance': other threads calling
+                     * getInstance() must never see a Config that does not have its properties yet
+                     */
+                    retval.setProperties(p);
+                    singleton = retval;
                 }
             }
         }
@@ -128,7 +126,7 @@ public class EndpointFactory {
      *
      * @param properties the properties loaded from {@value #PROPERTIES_FILE_NAME}
      */
-    private void setProperties(Properties properties)
+    protected void setProperties(Properties properties)
     {
         this.properties = properties;
     }
