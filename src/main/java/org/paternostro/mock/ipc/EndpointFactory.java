@@ -95,7 +95,7 @@ public class EndpointFactory {
 
                     /*
                      * Configure the new instance before publishing it in 'instance': other threads calling
-                     * getInstance() must never see a Config that does not have its properties yet
+                     * getInstance() must never see a EndpointFactory that does not have its properties yet
                      */
                     retval.setProperties(p);
                     singleton = retval;
