@@ -167,20 +167,19 @@ public class EndpointFactory {
         String      className = properties.getProperty(key, defaultClass);
 
         try {
-            retval = (Endpoint)Class.forName(className).newInstance();
-        } catch (ClassNotFoundException e) {
-            logger.warn("Class " + className + " not found, using defaults", e);
-        } catch (InstantiationException|IllegalAccessException e) {
-            logger.warn("Class " + className + " instantiation error, using defaults", e);
-        } catch (ClassCastException e) {
-            logger.warn("Cannot cast class " + className + " to Endpoint, using defaults", e);
-        } finally {
-            if (retval == null) {
-                try {
-                    retval = endpointClass.newInstance();
-                } catch (InstantiationException|IllegalAccessException e) {
-                    logger.error("Class " + endpointClass.getName() + " cannot be instantiated!", e);
-                }
+            retval = Class.forName(className, false, Endpoint.class.getClassLoader())
+                            .asSubclass(Endpoint.class)
+                            .getDeclaredConstructor()
+                            .newInstance();
+        } catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
+            logger.warn("Cannot instantiate class " + className + ", using default class", e);
+
+            try {
+                retval = endpointClass.asSubclass(Endpoint.class)
+                                        .getDeclaredConstructor()
+                                        .newInstance();
+            } catch (ReflectiveOperationException | RuntimeException | LinkageError e2) {
+                logger.error("Class " + endpointClass.getName() + " cannot be instantiated!", e2);
             }
         }
 
